@@ -1,0 +1,52 @@
+<D:acl xmlns:D="DAV:">
+   <D:ace>
+      <D:principal>
+         <D:href>http://myserver.com:8080/users/principal</D:href>
+      </D:principal>
+
+      <D:deny>
+         <D:privilege>
+            <D:write-acl />
+         </D:privilege>
+
+         <D:privilege>
+            <D:read-acl />
+         </D:privilege>
+
+         <D:privilege>
+            <D:read />
+         </D:privilege>
+
+         <D:privilege>
+            <D:write />
+         </D:privilege>
+      </D:deny>
+   </D:ace>
+
+   <D:ace>
+      <D:principal>
+         <D:all />
+      </D:principal>
+
+      <D:grant>
+         <D:privilege>
+            <D:read />
+         </D:privilege>
+      </D:grant>
+   </D:ace>
+
+   <D:ace>
+      <D:principal>
+         <D:property>
+            <R:owner xmlns:R="DAV:" />
+         </D:property>
+      </D:principal>
+
+      <D:grant>
+         <D:privilege>
+            <D:read />
+         </D:privilege>
+      </D:grant>
+   </D:ace>
+</D:acl>
+

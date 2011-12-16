@@ -1,0 +1,4 @@
+[jquery.dav](http://unifiedapplications.com/github/jquery.dav) - WebDAV access library for jQuery
+==================================================
+
+You'll need to have access to a WebDAV server which at least passes the standard tests: http://www.webdav.org/neon/litmus/

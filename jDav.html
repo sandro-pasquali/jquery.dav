@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title></title>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+  <script type="text/javascript" src="jDav.js"></script>
+  <script type="text/javascript" src="jDavFilters.js"></script>
+  
+  <script type="text/javascript">
+
+function tests()
+  {
+    jQuery.Dav('../').readFolder({
+      success:    function(dat, stat) {
+        console.log(jQuery.Dav(dat).seekToNode('propstat').seekToNode('getlastmodified').nodeText());
+      }  
+    });
+    
+    jQuery.Dav('../').readFolder({
+      success:    function(dat, stat) {
+        console.log(jQuery.Dav(dat).getNodesByTag('propstat'));
+      },
+      dataFilter: jQuery.DavFilters.folder   
+    });
+    
+    /**
+     * Initial tests
+     */
+     
+    // #get
+    jQuery.Dav('testxml.xml').get({
+      complete: function() {
+        console.log('#get');
+      },
+      success:  function(dat, stat) {
+        console.log(jQuery.Dav(dat).getNodesByTag('acl'));
+      }
+    });
+    
+    // #post
+    jQuery.Dav('jDav.html').post({
+      complete: function(dat, stat) {
+        console.log('#post');
+        console.log('post test status: ' + stat);
+      },
+      data: {
+        foo: 'bar',
+        bar: 'foo'  
+      }
+    });
+        
+    // head
+    jQuery.Dav('jDav.html').head({
+      async: false, // want to make sure we do this prior to next test
+      complete:  function(dat, stat) {
+        console.log('#head');
+        console.log(dat);
+      } 
+    });
+    
+    // #propFind
+    jQuery.Dav('jDav.html').propFind({
+      async: false, // want to make sure we do this prior to next test
+      success:  function(dat, stat) {
+        console.log('#propFind > getcontentlength:');
+        console.log(jQuery.Dav(dat).seekToNode('getcontentlength').nodeText());
+      },
+      data: '<?xml version="1.0" encoding="utf-8" ?>\
+              <propfind xmlns="DAV:">\
+                <prop>\
+                  <P:getcontentlength xmlns:P="DAV:"/>\
+                </prop>\
+              </propfind>'
+    });
+    
+        
+    // #getAllProperties
+    jQuery.Dav('testxml.xml').getAllProperties({
+      async: false, // want to make sure we do this prior to next test
+      complete: function() {
+        console.log('#getAllProperties');
+      },
+      success:  function(dat, stat) {
+        console.log(jQuery.Dav(dat).seekToNode('propstat').nodeName());
+      }
+    });
+        
+    /****************************************************
+     *
+     * Test propPatch-ing, setting, removing, getting.
+     *
+     ****************************************************/
+    
+    
+    // #propPatch > set
+    jQuery.Dav('testxml.xml').propPatch({
+      async: false, // want to make sure we do this prior to next test
+      complete:  function(dat, stat) {
+        console.log('#propPatch > set testingprop to `somevalue`');
+        console.log(stat);
+      },
+      setProperty: {
+        name: 'testingprop',
+        value: 'somevalue'  
+      }
+    });
+    
+    // #getProperty
+    jQuery.Dav('testxml.xml').getProperty({
+      async: false, // want to make sure we do this prior to next test
+      property: [
+        'testingprop'
+      ],
+      success:  function(dat, stat) {
+        console.log('#getProperty > get testingprop, should be `somevalue`');
+        console.log(jQuery.Dav(dat).seekToNode('testingprop').nodeText());
+      }
+    });
+    
+    // #propPatch > remove
+    jQuery.Dav('testxml.xml').propPatch({
+      complete:  function(dat, stat) {
+        console.log('#propPatch > remove testingprop');
+        console.log(stat);
+      },
+      async: false, // want to make sure we do this prior to next test
+      removeProperty: {
+        name: 'testingprop'
+      }
+    });
+    
+    // #getProperty to test if removed
+    jQuery.Dav('testxml.xml').getProperty({
+      async: false, // want to make sure we do this prior to next test
+      property: [
+        'testingprop'
+      ],
+      success:  function(dat, stat) {
+        console.log('#getProperty > get testingprop, `node:` should be blank');
+        console.log('node: ' + jQuery.Dav(dat).seekToNode('testingprop').nodeText())
+      }
+    });
+    
+    // #setProperty
+    jQuery.Dav('testxml.xml').setProperty({
+      async: false, // want to make sure we do this prior to next test
+      complete:  function(dat, stat) {
+        console.log('#setProperty > set testingprop to `somevalue`');
+        console.log(stat);
+      },
+      property: {
+        name: 'testingprop',
+        value: 'somevalue'  
+      }
+    });
+    
+    // #getProperty to test if set
+    jQuery.Dav('testxml.xml').getProperty({
+      async: false, // want to make sure we do this prior to next test
+      property: [
+        'testingprop'
+      ],
+      success:  function(dat, stat) {
+        console.log('#getProperty > get testingprop, should be `somevalue`');
+        console.log(jQuery.Dav(dat).seekToNode('testingprop').nodeText())
+      }
+    });
+    
+    // #removeProperty
+    jQuery.Dav('testxml.xml').removeProperty({
+      complete:  function(dat, stat) {
+        console.log('#removeProperty > remove testingprop');
+        console.log(stat);
+      },
+      async: false, // want to make sure we do this prior to next test
+      property: {
+        name: 'testingprop'
+      }
+    });
+    
+    // #getProperty to test if removed
+    jQuery.Dav('testxml.xml').getProperty({
+      async: false, // want to make sure we do this prior to next test
+      property: [
+        'testingprop'
+      ],
+      success:  function(dat, stat) {
+        console.log('#getProperty > get testingprop, `node:` should be blank');
+        console.log('node: ' + jQuery.Dav(dat).seekToNode('testingprop').nodeText())
+      }
+    });
+    
+    /**************************************************************
+     *
+     * Test creating/deleting files, using MKCOL, DELETE, and PUT
+     *
+     **************************************************************/
+    
+    // #put
+    jQuery.Dav('testing.html').put({
+      complete:  function(dat, stat) {
+        console.log('#put');
+      },
+      data: 'testing creating file with put',
+      async: false // want to make sure we do this prior to next test
+    });
+    
+    // #remove
+    jQuery.Dav('testing.html').remove({
+      complete:  function(dat, stat) {
+        console.log('#remove');
+      },
+      async: false // want to make sure we do this prior to next test
+    });
+
+    // #mkcol
+    jQuery.Dav('test').mkcol({
+      complete:  function(dat, stat) {
+        console.log('#mkcol');
+      },
+      async: false // want to make sure we do this prior to next test
+    });
+    
+    // #remove
+    jQuery.Dav('test').remove({
+      complete:  function(dat, stat) {
+        console.log('#remove folder');
+      },
+      async: false // want to make sure we do this prior to next test
+    });
+    
+    // #createFile
+    jQuery.Dav('testing.html').createFile({
+      complete:  function(dat, stat) {
+        console.log('#createFile');
+      },
+      async: false // want to make sure we do this prior to next test
+    });
+    
+    // #remove
+    jQuery.Dav('testing.html').remove({
+      complete:  function(dat, stat) {
+        console.log('#remove file');
+      },
+      async: false // want to make sure we do this prior to next test
+    });
+    
+    // #createFolder
+    jQuery.Dav('test').createFolder({
+      complete:  function(dat, stat) {
+        console.log('#createFolder');
+      },
+      async: false // want to make sure we do this prior to next test
+    });
+    
+    // #remove
+    jQuery.Dav('test').remove({
+      complete:  function(dat, stat) {
+        console.log('#remove folder');
+      },
+      async: false // want to make sure we do this prior to next test
+    });
+    
+    /******************************************
+     * 
+     * LOCKING, UNLOCKING
+     *
+     ******************************************/
+     
+    // #put temp lock file
+    jQuery.Dav('testlock.html').put({
+      complete:  function(dat, stat) {
+        console.log('#put create lockable resource');
+      },
+      async: false // want to make sure we do this prior to next test
+    });
+    
+    // storing...
+    var tempLockVar = '';
+    
+    // #lock
+    jQuery.Dav('testlock.html').lock({
+      username: 'sandro',
+      success:  function(dat, stat) {
+        tempLockVar = jQuery.Dav(dat).seekToNode('href').nodeText();
+        console.log('#lock successful');
+      },
+      async: false // want to make sure we do this prior to next test
+    });
+    
+    
+    // #unlock
+    jQuery.Dav('testlock.html').unlock({
+      lockToken: tempLockVar,
+      complete:  function(dat, stat) {
+        console.log('#unlock resource');
+      },
+      async: false // want to make sure we do this prior to next test
+    });
+
+
+    // #remove locked file
+    jQuery.Dav('testlock.html').remove({
+      complete:  function(dat, stat) {
+        console.log('#remove locked resource');
+      },
+      async: false // want to make sure we do this prior to next test
+    });
+     
+    
+    
+    /******************************************
+     *
+     * Test CHECKIN/CHECKOUT/UNCHECKOUT
+     *
+     ******************************************/
+     
+    // #put -- create a file
+    jQuery.Dav('testing.html').put({
+      complete:  function(dat, stat) {
+        console.log('#put VCR');
+      },
+      data: 'checkingin and out',
+      async: false // want to make sure we do this prior to next test
+    });
+    
+    // #versionControl
+    jQuery.Dav('testing.html').versionControl({
+      complete:  function(dat, stat) {
+        console.log('#versionControl');
+      },
+      async: false // want to make sure we do this prior to next test
+    });
+
+    // #checkout
+    jQuery.Dav('testing.html').checkout({
+      complete:  function(dat, stat) {
+        console.log('#checkout');
+      },
+      async: false // want to make sure we do this prior to next test
+    });
+    
+    // #checkin
+    jQuery.Dav('testing.html').checkin({
+      complete:  function(dat, stat) {
+        console.log('#checkin');
+      },
+      async: false // want to make sure we do this prior to next test
+    });
+    
+    // #checkout
+    jQuery.Dav('testing.html').checkout({
+      complete:  function(dat, stat) {
+        console.log('#checkout');
+      },
+      async: false // want to make sure we do this prior to next test
+    });
+    
+/*
+    // #checkin
+    jQuery.Dav('testing.html').checkin({
+      success:  function(dat, stat) {
+        console.log('#checkin');
+        console.log(stat);
+      },
+      async: false // want to make sure we do this prior to next test
+    });
+*/
+/*
+    // #uncheckout
+    jQuery.Dav('testing.html').uncheckout({
+      success:  function(dat, stat) {
+        console.log('#uncheckout');
+        console.log(stat);
+      },
+      async: false // want to make sure we do this prior to next test
+    });
+*/
+    // #put -- try to put
+    jQuery.Dav('testing.html').put({
+      complete:  function(dat, stat) {
+        console.log('#put');
+      },
+      data: 'after checking inout',
+      async: false // want to make sure we do this prior to next test
+    });
+    
+    // #getVersionTreeReport
+    jQuery.Dav('testing.html').getVersionTreeReport({
+      async: false, // want to make sure we do this prior to next test
+      success:  function(dat, stat) {
+        console.log('#getVersionTreeReport');
+        console.log(dat);
+      },
+      dataFilter: jQuery.DavFilters.versionReport
+    });
+    
+    jQuery.Dav('jDav.html').propFind({
+      data: '<?xml version="1.0" encoding="UTF-8" ?>\
+              <propfind xmlns="DAV:">\
+                <prop>\
+                  <supported-method-set/>\
+                </prop>\
+              </propfind>',
+      success: function(dat,stat) {
+        console.log('#methodset');
+        console.log(jQuery.Dav(dat).getNodesByTag('multistatus'));  
+      },
+      async: false
+    });
+  }
+    
+  
+  </script>
+    
+</head>
+<body>
+
+<p>
+    You'll need to have access to a WebDAV server which at least passes the standard tests: http://www.webdav.org/neon/litmus/
+</p>
+
+<p>
+Download <a href="jDav.zip">here</a>
+</p>
+
+<p>
+<a href="javascript:tests()">Run tests</a>  (Note: this uses console.log, so make sure this is enabled in your browser).
+</p>
+
+</body>
+</html>
