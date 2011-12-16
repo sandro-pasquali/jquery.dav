@@ -1,6 +1,6 @@
 /* ============================================================
- * jquery.dav.js v1.0.0
- * https://github.com/sandro-pasquali/jDav
+ * jquery.dav
+ * https://github.com/sandro-pasquali/jquery.dav
  * ============================================================
  * Copyright (c) 2011 Sandro Pasquali (spasquali@gmail.com)
  *
