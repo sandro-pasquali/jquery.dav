@@ -115,10 +115,10 @@
   var methodSupported = function(meth) {
     var sm = supportedMethods[meth];
     if(sm) {    
-      if(sm < 2)              return true;
-      if(isOpera && (sm < 3)) return true;
-      if(isIE && (sm < 4))    return true;
-      if(isMoz || isGecko)    return true;
+      if(sm < 2)						return true;
+      if(isOpera && (sm < 3))			return true;
+      if(isIE && (sm < 4))   			return true;
+      if(isMoz || isGecko || isSafari)	return true;
     }
     return false;
   };
